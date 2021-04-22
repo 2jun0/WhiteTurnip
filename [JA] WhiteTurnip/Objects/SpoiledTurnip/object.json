@@ -1,0 +1,16 @@
+﻿{
+  "Name": "Spoiled Turnip",
+  "Price": "0",
+  "Description": "An spoiled turnip",
+  "Category": "Junk",
+  "Edibility": "-30",
+  "IsColored": false,
+  "NameLocalization":
+  {
+    "ko": "썩은 무"
+  },
+  "DescriptionLocalization":
+  {
+    "ko": "썩은 냄새가 나는 무"
+  }
+}

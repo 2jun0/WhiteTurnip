@@ -1,0 +1,11 @@
+﻿{
+  "Name": "[JA] WhiteTurnip",
+  "Author": "ejun0",
+  "Version": "1.0.0",
+  "Description": "Add white turnip.",
+  "UniqueID": "ejun0.WhiteTurnipContent",
+  "MinimumApiVersion": "3.0.0",
+  "ContentPackFor": {
+    "UniqueID": "spacechase0.JsonAssets"
+  }
+}
