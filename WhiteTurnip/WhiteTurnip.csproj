@@ -58,19 +58,6 @@
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="packages.config" />
-    <None Include="[JA] WhiteTurnip\manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="[JA] WhiteTurnip\Objects\SpoiledTurnip\object.png" />
-    <Content Include="[JA] WhiteTurnip\Objects\WhiteTurnip\object.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="[JA] WhiteTurnip\Objects\SpoiledTurnip\object.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="[JA] WhiteTurnip\Objects\WhiteTurnip\object.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

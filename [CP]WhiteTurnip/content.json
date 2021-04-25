@@ -1,0 +1,45 @@
+{
+  "Format": "1.22.0",
+  "Changes": [
+    {
+      "LogName": "DaisyMae_Sprites",
+      "Action": "Load",
+      "Target": "Characters/DaisyMae",
+      "FromFile": "assets/img/sprite.png"
+    },
+    {
+      "LogName": "DaisyMae_Portraits",
+      "Action": "Load",
+      "Target": "Portraits/DaisyMae",
+      "FromFile": "assets/img/portraits.png"
+    },
+    {
+      "LogName": "DaisyMae_Dialogue",
+      "Action": "Load",
+      "Target": "Characters/Dialogue/DaisyMae",
+      "FromFile": "assets/dialogues/DaisyMae.json"
+    },
+    {
+      "LogName": "DaisyMae_Dispositions",
+      "Action": "EditData",
+      "Target": "Data/NPCDispositions",
+      "Entries": {
+        "DaisyMae": "child/polite/outgoing/positive/female/not-datable//Other/summer 5//BusStop 22 5/DaisyMae"
+      }
+    },
+    {
+      "LogName": "DaisyMae_GiftTastes", //This is how your NPC reacts to certain Items... You need to know the IDs of what you want your NPC to like/hate
+      "Action": "EditData", //Do not load.. just edit
+      "Target": "Data/NPCGiftTastes",
+      "Entries": {
+        "DaisyMae": "I love what you gave me!/72 74 228 227 233/I like this./60 62 64 66 68 70 597 591 595/I don't like this./80 330/I hate this./2/That was very thoughtful of you./-4/"
+      }
+    },
+    {
+      "LogName": "DaisyMae_Schedule",
+      "Action": "Load",
+      "Target": "Characters/schedules/DaisyMae",
+      "FromFile": "assets/schedules/DaisyMae.json"
+    }
+  ]
+}
