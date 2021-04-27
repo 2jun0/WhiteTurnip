@@ -1,22 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using System.Collections.Generic;
+using StardewValley.Menus;
 using SpaceShared.APIs;
+using WhiteTurnip.Framework;
 using SObject = StardewValley.Object;
+using SDialogue = StardewValley.Dialogue;
 
 namespace WhiteTurnip
 {
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod, IAssetEditor
     {
-        private static JsonAssetsAPI jsonAssets;
+        public static JsonAssetsAPI jsonAssets;
 
         private TurnipPrice turnipPrice;
         private TimeData lastestTimeData;
+
+        public static ModEntry instance;
+
+        public NPC DaisyMae { get => Game1.getCharacterFromName("DaisyMae"); }
 
         /*********
         ** Public methods
@@ -25,6 +32,7 @@ namespace WhiteTurnip
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
+            instance = this;
             turnipPrice = new TurnipPrice();
 
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
@@ -32,6 +40,8 @@ namespace WhiteTurnip
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.Player.InventoryChanged += this.OnInventoryChanged;
+            helper.Events.Display.MenuChanged += this.OnMenuChanged;
+            helper.Events.Input.ButtonPressed += this.OnButtonPressed;
         }
 
         /// <summary>Get whether this instance can edit the given asset.</summary>
@@ -174,6 +184,171 @@ namespace WhiteTurnip
                     }
                 }
             }
+        }
+
+        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        {
+            if (!Context.CanPlayerMove)
+                return;
+
+            if (Constants.TargetPlatform == GamePlatform.Android)
+            {
+                if (e.Button != SButton.MouseLeft)
+                    return;
+                if (e.Cursor.GrabTile != e.Cursor.Tile)
+                    return;
+            }
+            else if (!e.Button.IsActionButton())
+                return;
+
+            NPC daisyMae = Game1.getCharacterFromName("DaisyMae");
+
+            if (Game1.currentLocation != daisyMae.currentLocation)
+                return;
+
+            if (this.Helper.Input.GetCursorPosition().GrabTile != daisyMae.getTileLocation())
+                return;
+
+            Greeting();
+        }
+
+        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+        }
+
+        /*********
+        ** Daisy methods
+        *********/
+        private void Greeting()
+        {
+            Game1.drawDialogueNoTyping(this.DaisyMae, Helper.Translation.Get("daisymae.spring1"));
+            AskQuestionAfterGreeting(1);
+        }
+
+        private void AskQuestionAfterGreeting(int level)
+        {
+            Game1.afterDialogues = delegate ()
+            {
+                switch (level)
+                {
+                    case 1:
+                        Game1.currentLocation.createQuestionDialogue(
+                             String.Format(Helper.Translation.Get("daisymae.spring1_q"), this.turnipPrice.GetTurnipPrice(this.lastestTimeData)),
+                            new Response[] {
+                                new Response("yes", Helper.Translation.Get("daisymae.spring_a1")),
+                                new Response("explain",  Helper.Translation.Get("daisymae.spring_a2")),
+                                new Response("no",  Helper.Translation.Get("daisymae.spring_a3"))
+                            },
+                            delegate (Farmer who, string answer)
+                            {
+                                if (answer == "yes")
+                                    ShowTurnipShopMenu();
+                                else if (answer == "no")
+                                {
+                                    Game1.activeClickableMenu = null;
+                                    Game1.player.canMove = true;
+                                }
+                                else if (answer == "explain")
+                                    Explain(1);
+                            });
+                        break;
+                }
+            };
+         }
+
+        private void Explain(int level)
+        {
+            switch (level) 
+            {
+                case 1:
+                    Game1.drawDialogueNoTyping(this.DaisyMae, Helper.Translation.Get("daisymae.explain_turnip1"));
+                    AskQuestionAfterExplain(level);
+                    break;
+                case 2:
+                    Game1.drawDialogueNoTyping(this.DaisyMae, Helper.Translation.Get("daisymae.explain_turnip2"));
+                    AskQuestionAfterExplain(level);
+                    break;
+                case 3:
+                    Game1.drawDialogueNoTyping(this.DaisyMae, Helper.Translation.Get("daisymae.explain_turnip3"));
+                    AskQuestionAfterExplain(level);
+                    break;
+            } 
+        }
+
+        private  void AskQuestionAfterExplain(int level)
+        {
+            Game1.afterDialogues = delegate ()
+            {
+                switch (level)
+                {
+                    case 1:
+                        Game1.currentLocation.createQuestionDialogue(
+                            Helper.Translation.Get("daisymae.explain_turnip1_q"),
+                            new Response[] {
+                                new Response("yes", Helper.Translation.Get("daisymae.explain_turnip1_a1")),
+                                new Response("no",  Helper.Translation.Get("daisymae.explain_turnip1_a2"))
+                            },
+                            delegate (Farmer who, string answer)
+                            {
+                                if (answer == "yes")
+                                    Explain(2);
+                                else if (answer == "no")
+                                {
+                                    Game1.activeClickableMenu = null;
+                                    Game1.player.canMove = true;
+                                }
+                            });
+                        break;
+                    case 2:
+                        Game1.currentLocation.createQuestionDialogue(
+                            Helper.Translation.Get("daisymae.explain_turnip2_q"),
+                            new Response[] {
+                                new Response("yes", Helper.Translation.Get("daisymae.explain_turnip2_a1")),
+                                new Response("no",  Helper.Translation.Get("daisymae.explain_turnip2_a2"))
+                            },
+                            delegate (Farmer who, string answer)
+                            {
+                                if (answer == "yes")
+                                    Explain(3);
+                                else if (answer == "no")
+                                {
+                                    Game1.activeClickableMenu = null;
+                                    Game1.player.canMove = true;
+                                }
+                            });
+                        break;
+                    case 3:
+                        Game1.currentLocation.createQuestionDialogue(
+                            String.Format(Helper.Translation.Get("daisymae.explain_turnip3_q"), this.turnipPrice.GetTurnipPrice(this.lastestTimeData)),
+                            new Response[] {
+                                new Response("yes", Helper.Translation.Get("daisymae.explain_turnip3_a1")),
+                                new Response("explain",  Helper.Translation.Get("daisymae.explain_turnip3_a2")),
+                                new Response("no",  Helper.Translation.Get("daisymae.explain_turnip3_a3"))
+                            },
+                            delegate (Farmer who, string answer)
+                            {
+                                if (answer == "yes")
+                                    ShowTurnipShopMenu();
+                                else if (answer == "no")
+                                {
+                                    Game1.activeClickableMenu = null;
+                                    Game1.player.canMove = true;
+                                }
+                                else if (answer == "explain")
+                                    Explain(1);
+                            });
+                        break;
+                }
+            };
+        }
+
+        private void ShowTurnipShopMenu()
+        {
+            Game1.activeClickableMenu = new TurnipShopMenu(
+                delegate(int count) {
+
+                },
+                null);
         }
     }
 }

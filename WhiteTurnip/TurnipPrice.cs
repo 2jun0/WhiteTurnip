@@ -9,14 +9,11 @@ namespace WhiteTurnip
 {
     class TurnipPrice
     {
+        public static int TURNIP_BUY_PRICE = 500;
+
         private Random random = null;
         private WeekPrice currentWeekPrice;
         private int currentWeek;
-        
-        public void init()
-        {
-
-        }
 
         public int GetTurnipPrice(TimeData timeData)
         {
