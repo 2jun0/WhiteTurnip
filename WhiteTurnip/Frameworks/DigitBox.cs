@@ -3,11 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley.Menus;
 
-namespace WhiteTurnip.Framework
+namespace WhiteTurnip.Frameworks
 {
     internal class DigitBox : TextBox
     {
-        public int Digits { get; set; }
+        public int _digits = 0;
+        public int digitsLimit;
+        public int Digits { get => _digits; set => setDigits(value); }
         public DigitBox(Texture2D textBoxTexture, Texture2D caretTexture, SpriteFont font, Color textColor)
             : base(textBoxTexture, caretTexture, font, textColor)
         {
@@ -18,8 +20,12 @@ namespace WhiteTurnip.Framework
         {
             if (int.TryParse(inputChar.ToString(), out _) && !(inputChar == '0' && this.Text.Trim() == ""))
             {
+                int preDigits = this._digits;
                 base.RecieveTextInput(inputChar);
-                this.Digits = getDigits();
+                this._digits = getDigits();
+
+                if (this._digits > this.digitsLimit)
+                    this.Digits = preDigits;
             }
         }
 
@@ -27,8 +33,12 @@ namespace WhiteTurnip.Framework
         {
             if (int.TryParse(text, out _) && !(text == "0" && this.Text.Trim() == ""))
             {
+                int preDigits = this._digits;
                 base.RecieveTextInput(text);
-                this.Digits = getDigits();
+                this._digits = getDigits();
+
+                if (this._digits > this.digitsLimit)
+                    this.Digits = preDigits;
             }
         }
 
@@ -42,6 +52,7 @@ namespace WhiteTurnip.Framework
 
         private void setDigits(int digits)
         {
+            this._digits = digits;
             this.Text = digits.ToString();
         }
     }

@@ -5,10 +5,6 @@
   "Category": "Vegetable",
   "Edibility": "30",
   "IsColored": false,
-  "CanPurchase": true,
-  "PurchaseFrom": "Pierre",
-  "PurchasePrice": "500",
-  "PurchaseRequirements": [ "t 900 1200", "d Mon Tue Wed Thu Fri Sat" ],
   "NameLocalization":
   {
     "ko": "순무"
