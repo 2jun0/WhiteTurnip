@@ -20,8 +20,8 @@ namespace WhiteTurnip
 
         public static ModEntry instance;
 
-        private int wt_id;
-        private int sp_id;
+        public static int wt_id;
+        public static int sp_id;
 
         /*********
         ** Public methods
@@ -116,6 +116,7 @@ namespace WhiteTurnip
                 wt_id = jsonAssets.GetObjectId("White Turnip");
                 sp_id = jsonAssets.GetObjectId("Spoiled Turnip");
             };
+            Game1.activeClickableMenu = new WhiteTurnip.Frameworks.TurnipShopMenu(null, null, null);
         }
 
         private void OnTimeChanged(object sender, TimeChangedEventArgs e)

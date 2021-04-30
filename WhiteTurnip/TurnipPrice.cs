@@ -9,7 +9,7 @@ namespace WhiteTurnip
 {
     class TurnipPrice
     {
-        public static int TURNIP_BUY_PRICE = 100;
+        public const int TURNIP_BUY_PRICE = 100;
 
         private Random random = null;
         private WeekPrice currentWeekPrice;

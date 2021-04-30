@@ -37,5 +37,10 @@ namespace WhiteTurnip
         {
             return _helper.Translation.Get(key);
         }
+
+        public static string getTranslation(string key, object formatValue)
+        {
+            return string.Format(_helper.Translation.Get(key), formatValue);
+        }
     }
 }

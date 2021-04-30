@@ -78,7 +78,7 @@ namespace WhiteTurnip.Frameworks
             this.PortraitPosition = new Vector2(left, top - Game1.tileSize);
 
             // Question
-            string question = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.question"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
+            string question = ModResource.getTranslation("turnipshopmenu.question", TurnipPrice.TURNIP_BUY_PRICE.ToString("###,###,###,###"));
 
             this.QuestionBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -109,7 +109,7 @@ namespace WhiteTurnip.Frameworks
             }
 
             // sum price box
-            string sumPrice = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.sumprice"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
+            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
 
             this.SumPriceBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -117,8 +117,8 @@ namespace WhiteTurnip.Frameworks
                 Y = top + Game1.tileSize * 2,
                 Height = 0,
                 Width = this.width,
-                Text = sumPrice
-            };
+                Text = ModResource.getTranslation("turnipshopmenu.sumprice", sumPrice > 0 ? sumPrice.ToString("###,###,###,###") : "0")
+        };
 
             // ok button
             this.OkButton = new ClickableTextureComponent("OK", new Rectangle(right - Game1.tileSize, bottom + Game1.tileSize / 4, Game1.tileSize, Game1.tileSize), "", null, Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46), 1f);
@@ -229,8 +229,8 @@ namespace WhiteTurnip.Frameworks
             this.count = this.CountBox.Digits;
 
             // update sum price
-            string sumPrice = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.sumprice"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
-            this.SumPriceBox.Text = sumPrice;
+            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
+            this.SumPriceBox.Text = ModResource.getTranslation("turnipshopmenu.sumprice", sumPrice > 0 ? sumPrice.ToString("###,###,###,###") : "0");
         }
 
         private void SelectCountBox(bool explicitly)
@@ -253,7 +253,7 @@ namespace WhiteTurnip.Frameworks
             else
             {
                 this.who.Money = this.who.Money - sumPrice;
-                this.who.addItemByMenuIfNecessary(new SObject(ModEntry.jsonAssets.GetObjectId("White Turnip"), this.count));
+                this.who.addItemByMenuIfNecessary(new SObject(ModEntry.wt_id, this.count));
                 this.who.currentLocation.playSound("coin");
             }
 
