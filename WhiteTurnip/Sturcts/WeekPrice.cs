@@ -21,8 +21,8 @@ namespace WhiteTurnip
         {
             this.pattern = pattern;
             this.prices = new int[14];
-            this.prices[0] = 500;
-            this.prices[1] = 500;
+            this.prices[0] = TurnipPrice.TURNIP_BUY_PRICE;
+            this.prices[1] = TurnipPrice.TURNIP_BUY_PRICE;
         }
 
     }
