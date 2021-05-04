@@ -49,14 +49,23 @@ namespace WhiteTurnip
         *********/
         private void RotTurnips()
         {
+            SObject spoiledTurnip = new SObject(sp_id, 1);
             // Rot all turnips
             Utility.iterateAllItems(
                 delegate (Item item)
                 {
                     if(item.parentSheetIndex == wt_id)
                     {
-                        item.ParentSheetIndex = sp_id;
-                        item.Stack = 1;
+                        SObject sobj = (SObject)item;
+                        sobj.ParentSheetIndex = spoiledTurnip.ParentSheetIndex;
+                        sobj.Category = spoiledTurnip.Category;
+                        sobj.Price = spoiledTurnip.Price;
+                        sobj.DisplayName = spoiledTurnip.DisplayName;
+                        sobj.Name = spoiledTurnip.Name;
+                        sobj.name = spoiledTurnip.name;
+                        sobj.Stack = spoiledTurnip.Stack;
+                        sobj.Type = spoiledTurnip.Type;
+                        sobj.Edibility = spoiledTurnip.Edibility;
                     }
                 });
         }
