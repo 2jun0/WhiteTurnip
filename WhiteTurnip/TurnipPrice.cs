@@ -13,29 +13,32 @@ namespace WhiteTurnip
 
         private Random random = null;
         private WeekPrice currentWeekPrice;
-        private int currentWeek;
 
-        public int GetTurnipPrice(TimeData timeData)
+        public TurnipPrice()
         {
-            if (timeData.timeOfDay < 1200)
+            Update();
+        }
+
+        public int GetTurnipPrice()
+        {
+            if ((int)Game1.timeOfDay < 1200)
             {
-                return currentWeekPrice.prices[2 * (timeData.daysPlayed%7)];
+                return currentWeekPrice.prices[2 * ((int)Game1.stats.DaysPlayed % 7)];
             }
             else
             {
-                return currentWeekPrice.prices[2 * (timeData.daysPlayed%7) + 1];
+                return currentWeekPrice.prices[2 * ((int)Game1.stats.DaysPlayed % 7) + 1];
             }
         }
 
-        public void Update(int week)
+        public void Update()
         {
-            currentWeek = week;
             currentWeekPrice = DecideWeekPrice();
         }
 
         private WeekPrice DecideWeekPrice()
         {
-            random = new Random((int)Game1.uniqueIDForThisGame + this.currentWeek);
+            random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed/7);
             var r = random.NextDouble();
             if (r < 0.1375) return GetDecreasingPrice();
             else if (r < 0.1375 + 0.35) return GetFluctuatingPrice();

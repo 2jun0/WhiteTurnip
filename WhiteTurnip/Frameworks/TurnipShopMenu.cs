@@ -213,7 +213,6 @@ namespace WhiteTurnip.Frameworks
             {
                 case "OK":
                     this.TryBuy();
-                    exitThisMenu();
                     break;
 
                 case "CountBox":
@@ -243,6 +242,10 @@ namespace WhiteTurnip.Frameworks
         {
             int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
 
+            // prevent zero count
+            if (this.count <= 0)
+                return;
+
             // check money
             if (this.who.Money < sumPrice)
                 return;
@@ -255,6 +258,8 @@ namespace WhiteTurnip.Frameworks
                 this.who.Money = this.who.Money - sumPrice;
                 this.who.addItemByMenuIfNecessary(new SObject(ModEntry.wt_id, this.count));
                 this.who.currentLocation.playSound("coin");
+
+                exitThisMenu();
             }
 
         }

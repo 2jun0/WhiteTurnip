@@ -23,6 +23,8 @@ namespace WhiteTurnip
         public static int wt_id;
         public static int sp_id;
 
+        public const int INF = int.MaxValue;
+
         /*********
         ** Public methods
         *********/
@@ -31,14 +33,12 @@ namespace WhiteTurnip
         public override void Entry(IModHelper helper)
         {
             instance = this;
-            turnipPrice = new TurnipPrice();
 
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.DayEnding += this.OnDayEnding;
             helper.Events.GameLoop.DayStarted += this.OnDayStarted;
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
-            helper.Events.Player.InventoryChanged += this.OnInventoryChanged;
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
 
             ModResource.InitAssets(helper);
@@ -79,34 +79,62 @@ namespace WhiteTurnip
             int daysPlayed = (int)Game1.stats.DaysPlayed;
             int timeOfDay = (int)Game1.timeOfDay;
 
-            if (lastestTimeData.daysPlayed / 7 != daysPlayed / 7)
-                turnipPrice.Update(daysPlayed / 7);
-
             this.lastestTimeData.daysPlayed = daysPlayed;
             this.lastestTimeData.timeOfDay = timeOfDay;
         }
 
-        private void UpdateTurnipPrice()
+        private void UpdateTurnipPrice(TimeData prevTimeData)
         {
             int daysPlayed = (int)Game1.stats.DaysPlayed;
             int timeOfDay = (int)Game1.timeOfDay;
 
-            if (daysPlayed != lastestTimeData.daysPlayed || (timeOfDay < 1200) != (lastestTimeData.timeOfDay < 1200))
-                SetWhiteTurnipPrice(turnipPrice.GetTurnipPrice(lastestTimeData));
+            // 저장된 값과 주가 다를 경우 무 값 재 갱신
+            if (prevTimeData.daysPlayed / 7 != daysPlayed / 7)
+                this.turnipPrice.Update();
+
+            if (daysPlayed != prevTimeData.daysPlayed || (timeOfDay < 1200) != (prevTimeData.timeOfDay < 1200))
+                SetWhiteTurnipPrice(turnipPrice.GetTurnipPrice());
         }
 
-        private void CheckRottable()
+        private void CheckRottable(TimeData prevTimeData)
         {
             int daysPlayed = (int)Game1.stats.DaysPlayed;
             int timeOfDay = (int)Game1.timeOfDay;
 
             // 지난 날짜로 돌아간 경우 -> 썩음
-            if (lastestTimeData.daysPlayed > daysPlayed) RotTurnips();
+            if (prevTimeData.daysPlayed > daysPlayed) RotTurnips();
             // 오늘이지만 시간이 과거인 경우 -> 썩음
-            else if (lastestTimeData.daysPlayed == daysPlayed && lastestTimeData.timeOfDay > timeOfDay) RotTurnips();
+            else if (prevTimeData.daysPlayed == daysPlayed && prevTimeData.timeOfDay > timeOfDay) RotTurnips();
             // 다음 주 이상으로 넘어간 경우 -> 썩음
-            else if (lastestTimeData.daysPlayed / 7 != daysPlayed / 7) RotTurnips();
+            else if (prevTimeData.daysPlayed / 7 != daysPlayed / 7) RotTurnips();
         }
+
+        /*********
+        ** Data relation methods
+        *********/
+        private void SaveModData()
+        {
+            Game1.player.modData["ejun0.WhiteTurnip.LastestTimeData"] = string.Format("{0},{1}", this.lastestTimeData.daysPlayed, this.lastestTimeData.timeOfDay);
+        }
+
+        private void LoadModData()
+        {
+            if (Game1.player.modData.ContainsKey("ejun0.WhiteTurnip.LastestTimeData"))
+            {
+                string[] tmps = Game1.player.modData["ejun0.WhiteTurnip.LastestTimeData"].Split(',');
+                this.lastestTimeData.daysPlayed = int.Parse(tmps[0]);
+                this.lastestTimeData.timeOfDay = int.Parse(tmps[1]);
+            }
+            else
+            {
+                this.lastestTimeData.daysPlayed = -INF;
+                this.lastestTimeData.timeOfDay = -INF; 
+            }
+        }
+
+        /*********
+        ** Event methods
+        *********/
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
@@ -116,22 +144,24 @@ namespace WhiteTurnip
                 wt_id = jsonAssets.GetObjectId("White Turnip");
                 sp_id = jsonAssets.GetObjectId("Spoiled Turnip");
             };
-            Game1.activeClickableMenu = new WhiteTurnip.Frameworks.TurnipShopMenu(null, null, null);
         }
 
         private void OnTimeChanged(object sender, TimeChangedEventArgs e)
         {
-            CheckRottable();
-            UpdateTurnipPrice();
+            if (this.lastestTimeData.daysPlayed != -INF)
+            {
+                CheckRottable(this.lastestTimeData);
+                UpdateTurnipPrice(this.lastestTimeData);
+            }
             UpdateLastestTimeData();
+
             DaisyMaeManager.TickUpdate();
         }
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            UpdateLastestTimeData();
-            turnipPrice.Update(this.lastestTimeData.daysPlayed / 7);
-            SetWhiteTurnipPrice(turnipPrice.GetTurnipPrice(lastestTimeData));
+            LoadModData();
+            this.turnipPrice = new TurnipPrice();
 
             DaisyMaeManager.createNPC();
 
@@ -141,27 +171,21 @@ namespace WhiteTurnip
 
         private void OnDayEnding(object sender, DayEndingEventArgs e)
         {
-            DaisyMaeManager.GoHome();
+            SaveModData();
 
-            var nextDay = lastestTimeData.daysPlayed + 1;
-            if (nextDay / 7 != lastestTimeData.daysPlayed / 7)
-            {
-                RotTurnips();
-            }
+            DaisyMaeManager.GoHome();
         }
 
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
-            DaisyMaeManager.Update();
-        }
-
-        private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
-        {
-            foreach (Item item in e.Added)
+            if (this.lastestTimeData.daysPlayed != -INF)
             {
-                if (item.Name != "White Turnip")
-                    continue;
+                CheckRottable(this.lastestTimeData);
+                UpdateTurnipPrice(this.lastestTimeData);
             }
+            UpdateLastestTimeData();
+
+            DaisyMaeManager.Update();
         }
 
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
