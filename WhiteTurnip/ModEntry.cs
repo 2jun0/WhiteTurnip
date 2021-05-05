@@ -40,6 +40,7 @@ namespace WhiteTurnip
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
+            helper.Events.Display.MenuChanged += this.OnMenuChanged;
 
             ModResource.InitAssets(helper);
         }
@@ -219,6 +220,11 @@ namespace WhiteTurnip
                 return;
 
             DaisyMaeManager.DisplayDialogue(Game1.player);
+        }
+
+        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+
         }
     }
 }
