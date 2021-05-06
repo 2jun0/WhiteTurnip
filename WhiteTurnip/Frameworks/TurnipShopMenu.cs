@@ -43,10 +43,10 @@ namespace WhiteTurnip.Frameworks
 
         public TurnipShopMenu(Farmer who, Action<int> onBuy, Action<string> onFail)
             :base(
-                Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2,
-                Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize,
-                632 + IClickableMenu.borderWidth * 2,
-                250 + IClickableMenu.borderWidth * 2 + Game1.tileSize)
+                (int)((Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2) * (Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize) * (Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((632 + IClickableMenu.borderWidth * 2)*(Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((250 + IClickableMenu.borderWidth * 2 + Game1.tileSize)*(Game1.options.zoomLevel / Game1.options.uiScale)))
         {
             this.who = who;
             this.TextTexture = Game1.content.Load<Texture2D>("LooseSprites\\textBox");
@@ -62,8 +62,8 @@ namespace WhiteTurnip.Frameworks
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             base.gameWindowSizeChanged(oldBounds, newBounds);
-            this.xPositionOnScreen = Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2;
-            this.yPositionOnScreen = Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize;
+            this.xPositionOnScreen = (int)((Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2) *(Game1.options.zoomLevel / Game1.options.uiScale));
+            this.yPositionOnScreen = (int)((Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize) * (Game1.options.zoomLevel / Game1.options.uiScale));
             this.reBoundComponent();
         }
 
