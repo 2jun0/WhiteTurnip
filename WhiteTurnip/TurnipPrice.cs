@@ -9,33 +9,36 @@ namespace WhiteTurnip
 {
     class TurnipPrice
     {
-        public static int TURNIP_BUY_PRICE = 100;
+        public const int TURNIP_BUY_PRICE = 100;
 
         private Random random = null;
         private WeekPrice currentWeekPrice;
-        private int currentWeek;
 
-        public int GetTurnipPrice(TimeData timeData)
+        public TurnipPrice()
         {
-            if (timeData.timeOfDay < 1200)
+            Update();
+        }
+
+        public int GetTurnipPrice()
+        {
+            if ((int)Game1.timeOfDay < 1200)
             {
-                return currentWeekPrice.prices[2 * (timeData.daysPlayed%7)];
+                return currentWeekPrice.prices[2 * ((int)Game1.stats.DaysPlayed % 7)];
             }
             else
             {
-                return currentWeekPrice.prices[2 * (timeData.daysPlayed%7) + 1];
+                return currentWeekPrice.prices[2 * ((int)Game1.stats.DaysPlayed % 7) + 1];
             }
         }
 
-        public void Update(int week)
+        public void Update()
         {
-            currentWeek = week;
             currentWeekPrice = DecideWeekPrice();
         }
 
         private WeekPrice DecideWeekPrice()
         {
-            random = new Random((int)Game1.uniqueIDForThisGame + this.currentWeek);
+            random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed/7);
             var r = random.NextDouble();
             if (r < 0.1375) return GetDecreasingPrice();
             else if (r < 0.1375 + 0.35) return GetFluctuatingPrice();
@@ -50,7 +53,7 @@ namespace WhiteTurnip
             for (var i = 2; i < 14; i++)
             {
                 var diff = random.Next(-10, -1);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             return wp;
@@ -63,7 +66,7 @@ namespace WhiteTurnip
             for (var i = 2; i < 14; i++)
             {
                 var diff = random.Next(-10, 10);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             return wp;
@@ -76,22 +79,22 @@ namespace WhiteTurnip
             for (var i = 2; i < 7; i++)
             {
                 diff = random.Next(-10, -1);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             for (var i = 7; i < 9; i++)
             {
                 diff = random.Next(1, 10);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             diff = random.Next(100, 700);
-            wp.prices[9] = wp.prices[8] + diff;
+            wp.prices[9] = Math.Max(1, wp.prices[8] + diff);
 
             for (var i =10; i < 14; i++)
             {
                 diff = random.Next(-10, 1);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             return wp;
@@ -104,19 +107,19 @@ namespace WhiteTurnip
             for (var i = 2; i < 7; i++)
             {
                 diff = random.Next(-10, -1);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             for (var i = 7; i < 11; i++)
             {
                 diff = random.Next(-1, 10);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             for (var i = 12; i < 14; i++)
             {
                 diff = random.Next(-12, -1);
-                wp.prices[i] = wp.prices[i - 1] + diff;
+                wp.prices[i] = Math.Max(1, wp.prices[i - 1] + diff);
             }
 
             return wp;
