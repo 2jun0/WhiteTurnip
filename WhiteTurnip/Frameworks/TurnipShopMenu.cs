@@ -4,10 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI;
 using SObject = StardewValley.Object;
-using WhiteTurnip;
-using WhiteTurnip.Turnip;
+using WhiteTurnip.turnip;
 
 namespace WhiteTurnip.Frameworks
 {

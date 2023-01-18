@@ -4,10 +4,9 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using SpaceShared.APIs;
 using SObject = StardewValley.Object;
-using WhiteTurnip.weekPrice;
 using WhiteTurnip.utils;
-using WhiteTurnip.weekPrice.pattern;
-using WhiteTurnip.Turnip;
+using WhiteTurnip.turnip;
+using WhiteTurnip.turnip.price;
 
 namespace WhiteTurnip
 {
@@ -20,7 +19,7 @@ namespace WhiteTurnip
 
         private TurnipContext turnipContext;
 
-        private WeekPrice weekPrice;
+        private TurnipWeekPrice weekPrice;
         private TimeData lastestTimeData;
 
         public static ModEntry instance;

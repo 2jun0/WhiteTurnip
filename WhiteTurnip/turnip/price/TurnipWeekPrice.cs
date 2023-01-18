@@ -1,10 +1,10 @@
-﻿namespace WhiteTurnip.weekPrice
+﻿namespace WhiteTurnip.turnip.price
 {
-    class WeekPrice
+    class TurnipWeekPrice
     {
         private int[,] prices; // size: (7, 2)
 
-        public WeekPrice(int[,] prices)
+        public TurnipWeekPrice(int[,] prices)
         {
             this.prices = prices;
         }

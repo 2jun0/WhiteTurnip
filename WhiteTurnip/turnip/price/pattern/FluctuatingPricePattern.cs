@@ -1,10 +1,9 @@
 ﻿using System;
-using WhiteTurnip.Turnip;
 using WhiteTurnip.utils;
 
-namespace WhiteTurnip.weekPrice.pattern
+namespace WhiteTurnip.turnip.price.pattern
 {
-    class FluctuatingPricePattern : PricePattern
+    class FluctuatingPricePattern : IPricePattern
     {
         private readonly Randoms randoms;
         private readonly int priceMaxDiff = 10;
@@ -22,9 +21,9 @@ namespace WhiteTurnip.weekPrice.pattern
             prices[0, 1] = TurnipContext.TURNIP_BUY_PRICE;
 
             int prevPrice = prices[0, 1];
-            for (var d = 1; d < 7; d ++)
+            for (var d = 1; d < 7; d++)
             {
-                for (var af = 0; af <= 1; af ++)
+                for (var af = 0; af <= 1; af++)
                 {
                     int diff = GetNextDiff();
                     prices[d, af] = Math.Max(0, prevPrice + diff);

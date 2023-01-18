@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using WhiteTurnip.Frameworks;
-using WhiteTurnip.Turnip;
+using WhiteTurnip.turnip;
 
 namespace WhiteTurnip
 {
