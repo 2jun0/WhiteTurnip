@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WhiteTurnip.utils
+namespace WhiteTurnip.common.utils
 {
     class Randoms
     {
@@ -15,7 +15,7 @@ namespace WhiteTurnip.utils
         {
             random = new Random(seed);
         }
-            
+
         public static Randoms WeekRandoms()
         {
             return new Randoms(GetWeekRandomsSeed());
@@ -26,7 +26,7 @@ namespace WhiteTurnip.utils
             return (int)Game1.uniqueIDForThisGame + Days.Week();
         }
 
-        public T GetEntityRange<T>(int[]  probabilities, T[] entities)
+        public T GetEntityRange<T>(int[] probabilities, T[] entities)
         {
             int sumOfProbabilities = probabilities.Sum();
 

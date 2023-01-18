@@ -4,9 +4,10 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using SpaceShared.APIs;
 using SObject = StardewValley.Object;
-using WhiteTurnip.utils;
 using WhiteTurnip.turnip;
 using WhiteTurnip.turnip.price;
+using WhiteTurnip.common.utils;
+using WhiteTurnip.common.core;
 
 namespace WhiteTurnip
 {
@@ -17,21 +18,21 @@ namespace WhiteTurnip
         public const string DAISYMAE_INTRO_KEY = "ejun0.WhiteTurnip.DaisyMae_Introduction";
         public static JsonAssetsAPI jsonAssets;
 
-        private TurnipContext turnipContext;
+        private readonly TurnipContext turnipContext;
+        private readonly ModData modData;
 
         private TurnipWeekPrice weekPrice;
-        private TimeData lastestTimeData;
+        private TimeData lastestTimeData = null;
 
         public static ModEntry instance;
 
         public static int wt_id;
         public static int sp_id;
 
-        public const int INF = int.MaxValue;
-
         public ModEntry()
         {
             turnipContext = new TurnipContext();
+            modData = new ModData();
         }
 
         /*********
@@ -49,7 +50,6 @@ namespace WhiteTurnip
             helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
-            helper.Events.Display.MenuChanged += this.OnMenuChanged;
 
             ModResource.InitAssets(helper);
         }
@@ -82,13 +82,16 @@ namespace WhiteTurnip
 
         private void SetWhiteTurnipPrice(int price)
         {
+            float multiplier = 1.1f * Game1.MasterPlayer.difficultyModifier;
+            int realPrice = (int)Math.Ceiling(price / multiplier);
+
             // Set all turnip price
             Utility.iterateAllItems(
                 delegate (Item item)
                 {
                     if (item.parentSheetIndex == wt_id)
                     {
-                        ((SObject)item).Price = price;
+                        (item as SObject).Price = realPrice;
                     }
                 });
         }
@@ -98,39 +101,37 @@ namespace WhiteTurnip
             int daysPlayed = (int)Game1.stats.DaysPlayed;
             int timeOfDay = (int)Game1.timeOfDay;
 
-            this.lastestTimeData.daysPlayed = daysPlayed;
-            this.lastestTimeData.timeOfDay = timeOfDay;
+            lastestTimeData = new TimeData(daysPlayed, timeOfDay);
         }
 
         private void UpdateTurnipPrice(TimeData prevTimeData)
         {
-            int daysPlayed = (int)Game1.stats.DaysPlayed;
-            int timeOfDay = (int)Game1.timeOfDay;
-
-            int dayOfWeek = Days.DayOfWeek();
-            bool isAfternoon = Days.IsAfternoon();
-
             // 저장된 값과 주가 다를 경우 무 값 재 갱신
-            if (prevTimeData.daysPlayed / 7 != daysPlayed / 7)
-            {
+            if (prevTimeData.Week() != Days.Week())
                 resetWeekPrice();
-            }
 
-            if (daysPlayed != prevTimeData.daysPlayed || (timeOfDay < 1200) != (prevTimeData.timeOfDay < 1200))
-                SetWhiteTurnipPrice(weekPrice.GetPrice(dayOfWeek, isAfternoon));
+            if (Days.Day() != prevTimeData.DaysPlayed || Days.IsAfternoon() != prevTimeData.isAfternoon())
+                SetWhiteTurnipPrice(weekPrice.GetPrice(Days.DayOfWeek(), Days.IsAfternoon()));
         }
 
         private void CheckRottable(TimeData prevTimeData)
         {
-            int daysPlayed = (int)Game1.stats.DaysPlayed;
-            int timeOfDay = (int)Game1.timeOfDay;
-
             // 지난 날짜로 돌아간 경우 -> 썩음
-            if (prevTimeData.daysPlayed > daysPlayed) RotTurnips();
+            if (prevTimeData.DaysPlayed > Days.Day()) 
+            {
+                RotTurnips();
+            }
             // 오늘이지만 시간이 과거인 경우 -> 썩음
-            else if (prevTimeData.daysPlayed == daysPlayed && prevTimeData.timeOfDay > timeOfDay) RotTurnips();
+            if (prevTimeData.DaysPlayed == Days.Day() &&
+                prevTimeData.TimeOfDay > Days.Time())
+            {
+                RotTurnips();
+            }
             // 다음 주 이상으로 넘어간 경우 -> 썩음
-            else if (prevTimeData.daysPlayed / 7 != daysPlayed / 7) RotTurnips();
+            if (prevTimeData.Week() != Days.Week())
+            {
+                RotTurnips();
+            }
         }
 
         private void resetWeekPrice()
@@ -143,22 +144,12 @@ namespace WhiteTurnip
         *********/
         private void SaveModData()
         {
-            Game1.player.modData["ejun0.WhiteTurnip.LastestTimeData"] = string.Format("{0},{1}", this.lastestTimeData.daysPlayed, this.lastestTimeData.timeOfDay);
+            modData.SetTimeData(lastestTimeData);
         }
 
         private void LoadModData()
         {
-            if (Game1.player.modData.ContainsKey("ejun0.WhiteTurnip.LastestTimeData"))
-            {
-                string[] tmps = Game1.player.modData["ejun0.WhiteTurnip.LastestTimeData"].Split(',');
-                this.lastestTimeData.daysPlayed = int.Parse(tmps[0]);
-                this.lastestTimeData.timeOfDay = int.Parse(tmps[1]);
-            }
-            else
-            {
-                this.lastestTimeData.daysPlayed = -INF;
-                this.lastestTimeData.timeOfDay = -INF; 
-            }
+            lastestTimeData = modData.TimeData();
         }
 
         /*********
@@ -177,7 +168,7 @@ namespace WhiteTurnip
 
         private void OnTimeChanged(object sender, TimeChangedEventArgs e)
         {
-            if (this.lastestTimeData.daysPlayed != -INF)
+            if (this.lastestTimeData.DaysPlayed >= 0)
             {
                 CheckRottable(this.lastestTimeData);
                 UpdateTurnipPrice(this.lastestTimeData);
@@ -207,7 +198,7 @@ namespace WhiteTurnip
 
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
-            if (this.lastestTimeData.daysPlayed != -INF)
+            if (this.lastestTimeData.DaysPlayed >= 0)
             {
                 CheckRottable(this.lastestTimeData);
                 UpdateTurnipPrice(this.lastestTimeData);
@@ -239,11 +230,6 @@ namespace WhiteTurnip
                 return;
 
             DaisyMaeManager.DisplayDialogue(Game1.player);
-        }
-
-        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
-        {
-
         }
     }
 }

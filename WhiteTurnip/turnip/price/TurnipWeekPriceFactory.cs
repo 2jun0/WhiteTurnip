@@ -1,6 +1,6 @@
 ﻿using System;
+using WhiteTurnip.common.utils;
 using WhiteTurnip.turnip.price.pattern;
-using WhiteTurnip.utils;
 
 namespace WhiteTurnip.turnip.price
 {

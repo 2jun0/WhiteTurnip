@@ -18,7 +18,7 @@ namespace WhiteTurnip
         public static void InitAssets(IModHelper helper)
         {
             _helper = helper;
-
+            
             assetsFolderPath = helper.Content.GetActualAssetKey("assets", ContentSource.ModFolder);
             imgFolderPath = Path.Combine(assetsFolderPath, "img");
             daisyMaeTexturePath = Path.Combine(imgFolderPath, "DaisyMae_sprite.png");
