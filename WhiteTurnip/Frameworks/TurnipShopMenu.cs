@@ -4,9 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
-using StardewModdingAPI;
 using SObject = StardewValley.Object;
-using WhiteTurnip;
+using WhiteTurnip.turnip;
 
 namespace WhiteTurnip.Frameworks
 {
@@ -43,10 +42,10 @@ namespace WhiteTurnip.Frameworks
 
         public TurnipShopMenu(Farmer who, Action<int> onBuy, Action<string> onFail)
             :base(
-                Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2,
-                Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize,
-                632 + IClickableMenu.borderWidth * 2,
-                250 + IClickableMenu.borderWidth * 2 + Game1.tileSize)
+                (int)((Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2) * (Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize) * (Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((632 + IClickableMenu.borderWidth * 2)*(Game1.options.zoomLevel / Game1.options.uiScale)),
+                (int)((250 + IClickableMenu.borderWidth * 2 + Game1.tileSize)*(Game1.options.zoomLevel / Game1.options.uiScale)))
         {
             this.who = who;
             this.TextTexture = Game1.content.Load<Texture2D>("LooseSprites\\textBox");
@@ -54,7 +53,7 @@ namespace WhiteTurnip.Frameworks
             this.OnBuy = onBuy;
             this.OnFail = onFail;
 
-            this.buyableCount = who.Money / TurnipPrice.TURNIP_BUY_PRICE;
+            this.buyableCount = who.Money / TurnipContext.TURNIP_BUY_PRICE;
 
             this.initComponents();
         }
@@ -62,8 +61,8 @@ namespace WhiteTurnip.Frameworks
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             base.gameWindowSizeChanged(oldBounds, newBounds);
-            this.xPositionOnScreen = Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2;
-            this.yPositionOnScreen = Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize;
+            this.xPositionOnScreen = (int)((Game1.viewport.Width / 2 - (632 + IClickableMenu.borderWidth * 2) / 2) *(Game1.options.zoomLevel / Game1.options.uiScale));
+            this.yPositionOnScreen = (int)((Game1.viewport.Height / 3 * 2 - (250 + IClickableMenu.borderWidth * 2) / 2 - Game1.tileSize) * (Game1.options.zoomLevel / Game1.options.uiScale));
             this.reBoundComponent();
         }
 
@@ -78,7 +77,7 @@ namespace WhiteTurnip.Frameworks
             this.PortraitPosition = new Vector2(left, top - Game1.tileSize);
 
             // Question
-            string question = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.question"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
+            string question = ModResource.getTranslation("turnipshopmenu.question", TurnipContext.TURNIP_BUY_PRICE.ToString("###,###,###,###"));
 
             this.QuestionBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -109,7 +108,7 @@ namespace WhiteTurnip.Frameworks
             }
 
             // sum price box
-            string sumPrice = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.sumprice"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
 
             this.SumPriceBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -117,8 +116,8 @@ namespace WhiteTurnip.Frameworks
                 Y = top + Game1.tileSize * 2,
                 Height = 0,
                 Width = this.width,
-                Text = sumPrice
-            };
+                Text = ModResource.getTranslation("turnipshopmenu.sumprice", sumPrice > 0 ? sumPrice.ToString("###,###,###,###") : "0")
+        };
 
             // ok button
             this.OkButton = new ClickableTextureComponent("OK", new Rectangle(right - Game1.tileSize, bottom + Game1.tileSize / 4, Game1.tileSize, Game1.tileSize), "", null, Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46), 1f);
@@ -213,7 +212,6 @@ namespace WhiteTurnip.Frameworks
             {
                 case "OK":
                     this.TryBuy();
-                    exitThisMenu();
                     break;
 
                 case "CountBox":
@@ -229,8 +227,8 @@ namespace WhiteTurnip.Frameworks
             this.count = this.CountBox.Digits;
 
             // update sum price
-            string sumPrice = String.Format(ModEntry.instance.Helper.Translation.Get("turnipshopmenu.sumprice"), (TurnipPrice.TURNIP_BUY_PRICE * this.count).ToString("###,###,###,###"));
-            this.SumPriceBox.Text = sumPrice;
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
+            this.SumPriceBox.Text = ModResource.getTranslation("turnipshopmenu.sumprice", sumPrice > 0 ? sumPrice.ToString("###,###,###,###") : "0");
         }
 
         private void SelectCountBox(bool explicitly)
@@ -241,7 +239,11 @@ namespace WhiteTurnip.Frameworks
 
         private void TryBuy()
         {
-            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
+
+            // prevent zero count
+            if (this.count <= 0)
+                return;
 
             // check money
             if (this.who.Money < sumPrice)
@@ -253,8 +255,10 @@ namespace WhiteTurnip.Frameworks
             else
             {
                 this.who.Money = this.who.Money - sumPrice;
-                this.who.addItemByMenuIfNecessary(new SObject(ModEntry.jsonAssets.GetObjectId("White Turnip"), this.count));
+                this.who.addItemByMenuIfNecessary(new SObject(ModEntry.wt_id, this.count));
                 this.who.currentLocation.playSound("coin");
+
+                exitThisMenu();
             }
 
         }

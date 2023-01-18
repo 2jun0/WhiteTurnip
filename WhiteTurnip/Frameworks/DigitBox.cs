@@ -42,6 +42,12 @@ namespace WhiteTurnip.Frameworks
             }
         }
 
+        public override void RecieveCommandInput(char command)
+        {
+            base.RecieveCommandInput(command);
+            this._digits = getDigits();
+        }
+
         private int getDigits()
         {
             if (this.Text.Trim() == "")

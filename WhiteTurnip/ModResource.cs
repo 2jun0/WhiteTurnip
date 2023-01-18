@@ -1,11 +1,5 @@
 ﻿using System.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Text;
-using StardewValley;
-using StardewValley.Objects;
-using StardewValley.Tools;
 using StardewModdingAPI;
 
 namespace WhiteTurnip
@@ -24,7 +18,7 @@ namespace WhiteTurnip
         public static void InitAssets(IModHelper helper)
         {
             _helper = helper;
-
+            
             assetsFolderPath = helper.Content.GetActualAssetKey("assets", ContentSource.ModFolder);
             imgFolderPath = Path.Combine(assetsFolderPath, "img");
             daisyMaeTexturePath = Path.Combine(imgFolderPath, "DaisyMae_sprite.png");
@@ -36,6 +30,11 @@ namespace WhiteTurnip
         public static string getTranslation(string key)
         {
             return _helper.Translation.Get(key);
+        }
+
+        public static string getTranslation(string key, object formatValue)
+        {
+            return string.Format(_helper.Translation.Get(key), formatValue);
         }
     }
 }
