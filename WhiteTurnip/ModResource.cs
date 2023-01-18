@@ -1,11 +1,5 @@
 ﻿using System.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Text;
-using StardewValley;
-using StardewValley.Objects;
-using StardewValley.Tools;
 using StardewModdingAPI;
 
 namespace WhiteTurnip

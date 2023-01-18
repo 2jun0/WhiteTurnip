@@ -4,6 +4,10 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using SpaceShared.APIs;
 using SObject = StardewValley.Object;
+using WhiteTurnip.weekPrice;
+using WhiteTurnip.utils;
+using WhiteTurnip.weekPrice.pattern;
+using WhiteTurnip.Turnip;
 
 namespace WhiteTurnip
 {
@@ -12,10 +16,11 @@ namespace WhiteTurnip
     {
         // Mod data related
         public const string DAISYMAE_INTRO_KEY = "ejun0.WhiteTurnip.DaisyMae_Introduction";
-
         public static JsonAssetsAPI jsonAssets;
 
-        private TurnipPrice turnipPrice;
+        private TurnipContext turnipContext;
+
+        private WeekPrice weekPrice;
         private TimeData lastestTimeData;
 
         public static ModEntry instance;
@@ -24,6 +29,11 @@ namespace WhiteTurnip
         public static int sp_id;
 
         public const int INF = int.MaxValue;
+
+        public ModEntry()
+        {
+            turnipContext = new TurnipContext();
+        }
 
         /*********
         ** Public methods
@@ -98,12 +108,17 @@ namespace WhiteTurnip
             int daysPlayed = (int)Game1.stats.DaysPlayed;
             int timeOfDay = (int)Game1.timeOfDay;
 
+            int dayOfWeek = Days.DayOfWeek();
+            bool isAfternoon = Days.IsAfternoon();
+
             // 저장된 값과 주가 다를 경우 무 값 재 갱신
             if (prevTimeData.daysPlayed / 7 != daysPlayed / 7)
-                this.turnipPrice.Update();
+            {
+                resetWeekPrice();
+            }
 
             if (daysPlayed != prevTimeData.daysPlayed || (timeOfDay < 1200) != (prevTimeData.timeOfDay < 1200))
-                SetWhiteTurnipPrice(turnipPrice.GetTurnipPrice());
+                SetWhiteTurnipPrice(weekPrice.GetPrice(dayOfWeek, isAfternoon));
         }
 
         private void CheckRottable(TimeData prevTimeData)
@@ -117,6 +132,11 @@ namespace WhiteTurnip
             else if (prevTimeData.daysPlayed == daysPlayed && prevTimeData.timeOfDay > timeOfDay) RotTurnips();
             // 다음 주 이상으로 넘어간 경우 -> 썩음
             else if (prevTimeData.daysPlayed / 7 != daysPlayed / 7) RotTurnips();
+        }
+
+        private void resetWeekPrice()
+        {
+            weekPrice = turnipContext.WeekPriceFactory().Create();
         }
 
         /*********
@@ -171,7 +191,7 @@ namespace WhiteTurnip
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             LoadModData();
-            this.turnipPrice = new TurnipPrice();
+            resetWeekPrice();
 
             DaisyMaeManager.createNPC();
 

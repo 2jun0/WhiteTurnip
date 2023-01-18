@@ -7,6 +7,7 @@ using StardewValley.Menus;
 using StardewModdingAPI;
 using SObject = StardewValley.Object;
 using WhiteTurnip;
+using WhiteTurnip.Turnip;
 
 namespace WhiteTurnip.Frameworks
 {
@@ -54,7 +55,7 @@ namespace WhiteTurnip.Frameworks
             this.OnBuy = onBuy;
             this.OnFail = onFail;
 
-            this.buyableCount = who.Money / TurnipPrice.TURNIP_BUY_PRICE;
+            this.buyableCount = who.Money / TurnipContext.TURNIP_BUY_PRICE;
 
             this.initComponents();
         }
@@ -78,7 +79,7 @@ namespace WhiteTurnip.Frameworks
             this.PortraitPosition = new Vector2(left, top - Game1.tileSize);
 
             // Question
-            string question = ModResource.getTranslation("turnipshopmenu.question", TurnipPrice.TURNIP_BUY_PRICE.ToString("###,###,###,###"));
+            string question = ModResource.getTranslation("turnipshopmenu.question", TurnipContext.TURNIP_BUY_PRICE.ToString("###,###,###,###"));
 
             this.QuestionBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -109,7 +110,7 @@ namespace WhiteTurnip.Frameworks
             }
 
             // sum price box
-            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
 
             this.SumPriceBox = new TextBox(TextTexture, null, Game1.smallFont, Game1.textColor)
             {
@@ -228,7 +229,7 @@ namespace WhiteTurnip.Frameworks
             this.count = this.CountBox.Digits;
 
             // update sum price
-            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
             this.SumPriceBox.Text = ModResource.getTranslation("turnipshopmenu.sumprice", sumPrice > 0 ? sumPrice.ToString("###,###,###,###") : "0");
         }
 
@@ -240,7 +241,7 @@ namespace WhiteTurnip.Frameworks
 
         private void TryBuy()
         {
-            int sumPrice = TurnipPrice.TURNIP_BUY_PRICE * this.count;
+            int sumPrice = TurnipContext.TURNIP_BUY_PRICE * this.count;
 
             // prevent zero count
             if (this.count <= 0)

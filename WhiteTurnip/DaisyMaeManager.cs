@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using WhiteTurnip.Frameworks;
+using WhiteTurnip.Turnip;
 
 namespace WhiteTurnip
 {
@@ -129,7 +130,7 @@ namespace WhiteTurnip
             Game1.afterDialogues = delegate ()
             {
                 List<Response> responses = new List<Response>();
-                responses.Add(new Response("showShopMenu", GetTranslation("daisymae.spring_a1", TurnipPrice.TURNIP_BUY_PRICE)));
+                responses.Add(new Response("showShopMenu", GetTranslation("daisymae.spring_a1", TurnipContext.TURNIP_BUY_PRICE)));
                 responses.Add(new Response("explain1", GetTranslation("daisymae.spring_a2")));
                 responses.Add(new Response("nothing", GetTranslation("daisymae.spring_a3")));
                 Game1.currentLocation.createQuestionDialogue(GetDialogue("daisymae.spring1_q"), responses.ToArray(), OnPlayerResponse, DaisyMae);
@@ -157,7 +158,7 @@ namespace WhiteTurnip
                         responses.Add(new Response("showShopMenu", GetTranslation("daisymae.explain_turnip3_a1")));
                         responses.Add(new Response("nothing", GetTranslation("daisymae.explain_turnip3_a2")));
                         responses.Add(new Response("explain1", GetTranslation("daisymae.explain_turnip3_a3")));
-                        Game1.currentLocation.createQuestionDialogue(GetDialogue("daisymae.explain_turnip3_q", TurnipPrice.TURNIP_BUY_PRICE), responses.ToArray(), OnPlayerResponse, DaisyMae);
+                        Game1.currentLocation.createQuestionDialogue(GetDialogue("daisymae.explain_turnip3_q", TurnipContext.TURNIP_BUY_PRICE), responses.ToArray(), OnPlayerResponse, DaisyMae);
                         break;
                 }
             };
